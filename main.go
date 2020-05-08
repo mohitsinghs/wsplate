@@ -1,5 +1,3 @@
-// +build linux darwin
-
 package main
 
 import (
@@ -10,8 +8,6 @@ import (
 	"github.com/gofiber/websocket"
 	"log"
 )
-
-const TextType = 1
 
 func main() {
 	app := fiber.New()

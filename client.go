@@ -5,6 +5,9 @@ import (
 	"log"
 )
 
+// TextType for WebSocket
+const TextType = 1
+
 // Client for handling read/write
 type Client struct {
 	conn *websocket.Conn // fiber/fasthttp websocket connnection
