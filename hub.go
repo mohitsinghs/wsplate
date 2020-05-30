@@ -34,7 +34,7 @@ func (h *Hub) run() {
 			atomic.AddInt64(&h.count, 1)
 			// remove exiting client and update counter
 		case client := <-h.remove:
-			if _, ok := h.clients[client]; ok {
+			if h.clients[client] {
 				delete(h.clients, client)
 				atomic.AddInt64(&h.count, -1)
 			}
@@ -47,9 +47,11 @@ func (h *Hub) run() {
 					// close channel when buffer is full
 					// delete client and update counter
 				default:
-					close(client.send)
-					delete(h.clients, client)
-					atomic.AddInt64(&h.count, -1)
+					if h.clients[client] {
+						close(client.send)
+						delete(h.clients, client)
+						atomic.AddInt64(&h.count, -1)
+					}
 				}
 			}
 		}

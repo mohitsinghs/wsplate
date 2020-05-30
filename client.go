@@ -18,10 +18,11 @@ type Client struct {
 // read messages from websocket
 func (c *Client) read() {
 	defer func() {
-		// remove client from hub, close writer and connection once we are done
+		// remove client from hub and close connection once we are done
 		c.hub.remove <- c
-		close(c.send)
-		c.conn.Close()
+		if c.conn.Conn != nil {
+			_ = c.conn.Close()
+		}
 	}()
 	for {
 		// read messages
@@ -38,6 +39,13 @@ func (c *Client) read() {
 
 // write messages to websocket
 func (c *Client) write() {
+	defer func() {
+		// remove client from hub and close connection once we are done
+		c.hub.remove <- c
+		if c.conn.Conn != nil {
+			_ = c.conn.Close()
+		}
+	}()
 	for message := range c.send {
 		// send current message from channel
 		err := c.conn.WriteMessage(TextType, message)
