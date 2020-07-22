@@ -21,7 +21,7 @@ func main() {
 	// websocket connection handler
 	app.Get("/ws", websocket.New(func(c *websocket.Conn) {
 		// create new client with current connection
-		newClient(hub, c)
+		NewClient(hub, c)
 	}))
 
 	// just listen

@@ -1,15 +1,33 @@
 package main
 
 import (
-	"github.com/gofiber/websocket"
 	"log"
+
+	"github.com/gofiber/websocket"
+	"github.com/google/uuid"
 )
 
 // Client for handling read/write
 type Client struct {
+	id   string          // a client id
 	conn *websocket.Conn // fiber/fasthttp websocket connnection
 	hub  *Hub            // reference to hub
 	send chan []byte     // channel to recevice messages from hub
+}
+
+// Create new Client
+func NewClient(h *Hub, c *websocket.Conn) {
+	// create a new client and push to hub
+	client := &Client{
+		id:   uuid.New().String(),
+		conn: c,
+		hub:  h,
+		send: make(chan []byte, 256),
+	}
+	client.hub.add <- client
+	// listen for writes in goroutine
+	go client.write()
+	client.read()
 }
 
 // read messages from websocket
@@ -58,14 +76,4 @@ func (c *Client) write() {
 			}
 		}
 	}
-}
-
-// Create new Client
-func newClient(h *Hub, c *websocket.Conn) {
-	// create a new client and push to hub
-	client := &Client{conn: c, hub: h, send: make(chan []byte, 256)}
-	client.hub.add <- client
-	// listen for writes in goroutine
-	go client.write()
-	client.read()
 }
